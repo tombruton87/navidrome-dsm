@@ -1,0 +1,20 @@
+, {
+    "step_title": "Navidrome",
+    "items": [{
+        "type": "textfield",
+        "desc": "Navidrome plays the music already on this Synology, read-only. Usually that's the music shared folder. (File Station → right-click the folder → Properties shows its location.)",
+        "subitems": [{ "key": "wizard_music_dir", "desc": "Music folder", "defaultValue": "/volume1/music", "validator": { "allowBlank": false, "regex": { "expr": "/^\\\\/volume[0-9]+\\\\/[^\\\\n]+\$/", "errorText": "A folder like /volume1/music" } } }]
+    }, {
+        "type": "textfield",
+        "desc": "The package makes your Navidrome account at the first start, with a strong password shown once in the Navidrome window in DSM.",
+        "subitems": [{ "key": "wizard_admin_user", "desc": "Your username", "defaultValue": "", "validator": { "allowBlank": false, "regex": { "expr": "/^(?!dsm\$)[A-Za-z0-9][A-Za-z0-9._-]{0,31}\$/", "errorText": "Letters, digits, dot, dash, underscore — up to 32 (not dsm)" } } }]
+    }, {
+        "type": "singleselect",
+        "desc": "Music apps on phones connect to Navidrome directly. At home plain HTTP works; away from home it needs an address reachable from outside with a trusted certificate — set later in the window.",
+        "subitems": [
+            { "key": "wizard_tls_off", "desc": "Plain HTTP (on your own network, or behind DSM's reverse proxy)", "defaultValue": true },
+            { "key": "wizard_tls_dsm", "desc": "HTTPS with DSM's certificate: the system default from Control Panel → Security → Certificate", "defaultValue": false },
+            { "key": "wizard_tls_self", "desc": "HTTPS with a self-signed certificate (browsers only — most music apps won't accept it)", "defaultValue": false }
+        ]
+    }]
+}

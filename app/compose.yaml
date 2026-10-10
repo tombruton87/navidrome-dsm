@@ -1,0 +1,40 @@
+# Navidrome, as the Synology package runs it: the compose project in the
+# navidrome shared folder. The setup container writes .env beside this.
+# Its database lives in the navidrome_data volume; your music folder is
+# mounted read-only — Navidrome never changes your files.
+services:
+  server:
+    image: ${ND_IMAGE:-deluan/navidrome:latest}
+    container_name: navidrome-server
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-4533}:4533"
+    volumes:
+      - data:/data
+      # Your music folder, read-only. Never created if it's missing: the package mounts an empty
+      # placeholder in this shared folder instead (MUSIC_SRC), until the folder is there.
+      - type: bind
+        source: ${MUSIC_SRC:-./no-music-yet}
+        target: /music
+        read_only: true
+        bind:
+          create_host_path: false
+    environment:
+      TZ: ${TZ:-UTC}
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_SCANSCHEDULE: ${SCAN_EVERY:-1h}
+      ND_ENABLESHARING: ${SHARING:-false}
+      ND_ENABLEINSIGHTSCOLLECTOR: "false"   # Navidrome's anonymous usage report: off unless you turn it on in its own settings file
+      ND_TLSCERT: ${TLS_CERT:-}
+      ND_TLSKEY: ${TLS_KEY:-}
+      ND_REVERSEPROXYWHITELIST: ${PROXY_WHITELIST:-}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null --no-check-certificate https://127.0.0.1:4533/ping 2>/dev/null || wget -q -O /dev/null http://127.0.0.1:4533/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  data:
